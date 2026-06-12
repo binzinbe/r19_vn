@@ -66,9 +66,25 @@ function handleSearch() {
     filterCharacters();
 }
 
-// Real-time search when typing
-document.getElementById('search-input').addEventListener('input', function() {
-    filterCharacters();
+document.addEventListener('DOMContentLoaded', () => {
+
+    document.getElementById('search-input').addEventListener('input', function() {
+        filterCharacters();
+    });
+
+    loadCharacters();
 });
 
-document.addEventListener('DOMContentLoaded', loadCharacters);
+// Event delegation for filter buttons
+document.querySelectorAll('.filter-buttons').forEach(container => {
+    container.addEventListener('click', function(e) {
+        const btn = e.target.closest('.filter-btn');
+        if (!btn) return;
+
+        const filterType = this.dataset.filterType;
+        const value = btn.dataset.value;
+        setFilter(filterType, value);
+    });
+});
+
+
