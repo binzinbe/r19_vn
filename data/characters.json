@@ -16,5 +16,14 @@
       "rarities": "6",
       "image": "image/char/312801.webp",
       "link": "data/html/Charon.html"
+  },
+    {
+      "id": "3145",
+      "name": "Everecho",
+      "afflatus": "mineral",
+      "damage_types": "Reality",
+      "rarities": "6",
+      "image": "image/char/312801.webp",
+      "link": "data/html/Everecho.html"
   }
 ]
