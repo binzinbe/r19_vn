@@ -1,0 +1,20 @@
+[
+    {
+        "id": "3142",
+        "name": "Ramona",
+        "afflatus": "plant",
+        "damage_types": "mental",
+        "rarities": "6",
+        "image": "image/char/314201.webp",
+        "link": "data/html/Ramona.html"
+    },
+    {
+      "id": "3128",
+      "name": "Charon",
+      "afflatus": "intellect",
+      "damage_types": "mental",
+      "rarities": "6",
+      "image": "image/char/312801.webp",
+      "link": "data/html/Charon.html"
+  }
+]

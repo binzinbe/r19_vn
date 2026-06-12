@@ -1,0 +1,24 @@
+{
+    "afflatus": [
+        { "id": "all", "name": "ALL" },
+        { "id": "mineral", "name": "Mineral" },
+        { "id": "star", "name": "Star" },
+        { "id": "plant", "name": "Plant" },
+        { "id": "beast", "name": "Beast" },
+        { "id": "spirit", "name": "Spirit" },
+        { "id": "intellect", "name": "Intellect" }
+    ],
+    "damage_types": [
+        { "id": "all", "name": "ALL" },
+        { "id": "reality", "name": "Reality DMG" },
+        { "id": "mental", "name": "Mental DMG" }
+    ],
+    "rarities": [
+        { "id": "all", "name": "ALL" },
+        { "id": "6", "name": "6" },
+        { "id": "5", "name": "5" },
+        { "id": "4", "name": "4" },
+        { "id": "3", "name": "3" },
+        { "id": "2", "name": "2" }
+    ]
+}

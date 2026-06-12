@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <base href="https://nguyenthanhdan.github.io/r19_vn/">
+    <title>Reverse:1999 Wiki</title>
+    <style>
+        * {
+           
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0D0B18;
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #c17127 0%, #D4C4B5 50%, #daad0f 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        header p {
+            margin-top: 10px;
+            color: #9B8AA8;
+            font-size: 1rem;
+            letter-spacing: 1px;
+        }
+
+        main {
+            padding: 40px 0;
+            min-height: 60vh;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #6B5B7B;
+            font-size: 0.9rem;
+        }
+
+        /* Search Section */
+        .search-section {
+            background-color: #0D0B18;
+            border: 1px solid #292726;
+            
+            padding: 16px 20px;
+            margin-bottom: 24px;
+        }
+
+        .search-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #D4C4B5;
+            letter-spacing: 1px;
+            margin-bottom: 14px;
+        }
+
+        .filters-container {
+            margin-bottom: 14px;
+        }
+
+        .filter-row {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .filter-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .filter-label {
+            font-size: 0.75rem;
+            color: #b3a264;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            min-width: 50px;
+        }
+
+        .filter-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .filter-btn {
+            padding: 2px 12px;
+            background: transparent;
+            border: 1px solid rgba(212, 196, 181, 0.3);
+            
+            color: #a7a7a7;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn img {
+            width: 16px;
+            height: 16px;
+            margin-right: 4px;
+            vertical-align: middle;
+        }
+
+        .filter-btn:hover {
+            border-color: #D4C4B5;
+            color: #D4C4B5;
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, #bb6d3900, #876c51);
+            
+            color: #ffffff;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-input-wrapper {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 14px 10px 40px;
+            background: rgba(13, 11, 24, 0.8);
+            border: 1px solid rgba(192, 158, 126, 0.3);
+            
+            color: #ffffff;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-input::placeholder {
+            color: #948860;
+        }
+
+        .search-input:hover,
+        .search-input:focus {
+            border-color: #D4C4B5;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(212, 196, 181, 0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            color: #7b765b;
+        }
+
+        .search-btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #252525, #946749);
+            border: 1px solid rgba(212, 196, 181, 0.3);
+            
+            color: #ffffff;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 1px;
+        }
+
+        .search-btn:hover {
+            background: linear-gradient(135deg, #8a6c4b, #c29d58);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(155, 138, 168, 0.3);
+        }
+
+        /* Character Grid */
+        .characters-section {
+            margin-top: 24px;
+        }
+
+        .characters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, 112px);
+            gap: 5px;
+            justify-content: start;
+        }
+
+        .char-card {
+            width: 112px;
+            height: 262px;
+            background: rgba(155, 138, 168, 0.08);
+            
+            border-radius: 6px;
+            overflow: visible;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .char-card:hover {
+            transform: scale(1.05);
+            border-color: #D4C4B5;
+            box-shadow: 0 4px 12px rgba(155, 138, 168, 0.3);
+        }
+
+        .char-card .container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .char-card img {
+            width: 100%;
+            height: 100%;
+        }
+
+        .char-card img:not(.overlay-bg):not(.overlay-afflatus):not(.overlay-rarity) {
+            position: relative;
+            z-index: 5;
+        }
+
+        .char-card .overlay-bg {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: auto;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .char-card .overlay-rarity {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            pointer-events: none;
+            z-index: 6;
+        }
+
+        .char-card .overlay-afflatus {
+            position: absolute;
+            left: 3px;
+            width: 20px;
+            height: 40px;
+            z-index: 5;
+            pointer-events: none;
+            transition: transform 0.25s ease;
+        }
+
+        .char-card:hover .overlay-afflatus {
+            transform: scale(1.3);
+        }
+
+        .char-card .char-name {
+            position: absolute;
+    /* bottom: 0; */
+    top: 225px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 4px 2px;
+    z-index: 7;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+        }
+
+        .no-results {
+            grid-column: 1 / -1;
+            text-align: center;
+            color: #6B5B7B;
+            padding: 40px;
+            font-size: 16px;
+        }
+
+        /* JavaScript */
+    </style>
+    <style>
+        @media (max-width: 768px) {
+            .filter-buttons {
+                gap: 8px;
+            }
+            
+            .filter-btn {
+                padding: 2px 14px;
+                font-size: 0.85rem;
+            }
+            
+            .search-box {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Reverse:1999</h1>
+            <p></p>
+        </header>
+
+        <main>
+            <div class="search-section">
+                <div class="search-title">Tìm Kiếm</div>
+
+                <div class="filters-container">
+                    <div class="filter-row">
+                        <span class="filter-label">Afflatus</span>
+                        <div class="filter-buttons">
+                            <button class="filter-btn active" data-filter="afflatus" data-value="all" onclick="setFilter('afflatus', 'all')">ALL</button>
+                            <button class="filter-btn" data-filter="afflatus" data-value="mineral" onclick="setFilter('afflatus', 'mineral')"><img src="image/afflatus/m.webp" alt="">Mineral</button>
+                            <button class="filter-btn" data-filter="afflatus" data-value="star" onclick="setFilter('afflatus', 'star')"><img src="image/afflatus/s.webp" alt="">Star</button>
+                            <button class="filter-btn" data-filter="afflatus" data-value="plant" onclick="setFilter('afflatus', 'plant')"><img src="image/afflatus/p.webp" alt="">Plant</button>
+                            <button class="filter-btn" data-filter="afflatus" data-value="beast" onclick="setFilter('afflatus', 'beast')"><img src="image/afflatus/b.webp" alt="">Beast</button>
+                            <button class="filter-btn" data-filter="afflatus" data-value="spirit" onclick="setFilter('afflatus', 'spirit')"><img src="image/afflatus/sr.webp" alt="">Spirit</button>
+                            <button class="filter-btn" data-filter="afflatus" data-value="intellect" onclick="setFilter('afflatus', 'intellect')"><img src="image/afflatus/i.webp" alt="">Intellect</button>
+                        </div>
+                    </div>
+
+                    <div class="filter-row">
+                        <span class="filter-label">DMG</span>
+                        <div class="filter-buttons">
+                            <button class="filter-btn active" data-filter="damage-type" data-value="all" onclick="setFilter('damage-type', 'all')">ALL</button>
+                            <button class="filter-btn" data-filter="damage-type" data-value="reality" onclick="setFilter('damage-type', 'reality')"><img src="image/afflatus/reality.webp" alt="">Reality DMG</button>
+                            <button class="filter-btn" data-filter="damage-type" data-value="mental" onclick="setFilter('damage-type', 'mental')"><img src="image/afflatus/mental.webp" alt="">Mental DMG</button>
+                        </div>
+                    </div>
+
+                    <div class="filter-row">
+                        <span class="filter-label">Rarity</span>
+                        <div class="filter-buttons">
+                            <button class="filter-btn active" data-filter="rarity" data-value="all" onclick="setFilter('rarity', 'all')">ALL</button>
+                            <button class="filter-btn" data-filter="rarity" data-value="6" onclick="setFilter('rarity', '6')">VI</button>
+                            <button class="filter-btn" data-filter="rarity" data-value="5" onclick="setFilter('rarity', '5')">V</button>
+                            <button class="filter-btn" data-filter="rarity" data-value="4" onclick="setFilter('rarity', '4')">IV</button>
+                            <button class="filter-btn" data-filter="rarity" data-value="3" onclick="setFilter('rarity', '3')">III</button>
+                            <button class="filter-btn" data-filter="rarity" data-value="2" onclick="setFilter('rarity', '2')">II</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="search-box">
+                    <div class="search-input-wrapper">
+                        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="M21 21l-4.35-4.35"></path>
+                        </svg>
+                        <input type="text" class="search-input" id="search-input" placeholder="Nhập tên nhân vật, item...">
+                    </div>
+                    <button class="search-btn" onclick="handleSearch()">Tìm Kiếm</button>
+                </div>
+            </div>
+
+            <div class="characters-section">
+                <div class="characters-grid"></div>
+            </div>
+        </main>
+
+        <footer>
+            <p></p>
+        </footer>
+    </div>
+
+    <input type="hidden" id="selected-afflatus" value="all">
+    <input type="hidden" id="selected-damage-type" value="all">
+    <input type="hidden" id="selected-rarity" value="all">
+    <script src="static/js/main.js"></script>
+</body>
+</html>
