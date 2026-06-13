@@ -34,5 +34,16 @@
       "rarities": "6",
       "image": "image/char/314601.webp",
       "link": "data/html/Rhiannon.html"
-  }
+  },
+  {
+    "id": "3081",
+    "name": "Isolde",
+    "afflatus": "spirit",
+    "damage_types": "Reality",
+    "rarities": "6",
+    "eu": "1",
+    "name_eu": "1",
+    "image": "image/char/308101.webp",
+    "link": "data/html/Isolde_eu1.html"
+}
 ]

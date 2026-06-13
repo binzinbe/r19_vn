@@ -18,17 +18,23 @@ function renderCharacters(characters) {
         grid.innerHTML = '<p class="no-results">Không tìm thấy nhân vật nào.</p>';
         return;
     }
-    grid.innerHTML = characters.map(char => `
+    grid.innerHTML = characters.map(char => {
+        const euImage = char.eu === "1" 
+            ? `<img class="overlay-eu" src="image/rarities/eu.webp" alt="EU">
+               <span class="char-eu-name">EU ${char.name_eu}</span>` 
+            : '';
+        return `
         <a href="${char.link}" class="char-card">
             <div class="container">
                 <img class="overlay-bg" src="image/bg.webp" alt="">
                 <img src="${char.image}" alt="${char.name}">
                 <img class="overlay-afflatus" src="image/afflatus/${char.afflatus}.webp" alt="${char.afflatus}">
                 <img class="overlay-rarity" src="image/rarities/${char.rarities}.webp" alt="${char.rarities} stars">
+                ${euImage}
                 <span class="char-name">${char.name}</span>
             </div>
         </a>
-    `).join('');
+    `}).join('');
 }
 
 function setFilter(filterType, value) {

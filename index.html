@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" href="image/favicon.webp">
-    <base href="https://binzinbe.github.io/r19_vn/">
+    
     <title>Reverse:1999</title>
     <style>
         * {
@@ -28,8 +27,8 @@
 
         header {
             text-align: center;
-            
-            
+            padding: 40px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         header h1 {
@@ -220,6 +219,8 @@
             overflow: visible;
             cursor: pointer;
             transition: all 0.3s ease;
+            position: relative;
+            z-index: 7;
         }
 
         .char-card:hover {
@@ -240,7 +241,7 @@
         }
 
         .char-card img:not(.overlay-bg):not(.overlay-afflatus):not(.overlay-rarity) {
-            position: relative;
+            
             z-index: 5;
         }
 
@@ -263,11 +264,36 @@
             z-index: 6;
         }
 
+        .char-card .overlay-eu {
+            position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 105%;
+    height: 10%;
+    top: 150px;
+    
+    z-index: 17;
+        }
+
+        .char-card .char-eu-name {
+            position: absolute;
+    top: 155px;
+    left: 50%;
+    letter-spacing: 2px;
+    transform: translateX(-50%);
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 700;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+    z-index: 8;
+    pointer-events: none;
+        }
+
         .char-card .overlay-afflatus {
             position: absolute;
             left: 3px;
             width: 20px;
-            height: 40px;
+            height: 35px;
             z-index: 5;
             pointer-events: none;
             transition: transform 0.25s ease;
@@ -333,35 +359,35 @@
                 <div class="filters-container">
                     <div class="filter-row">
                         <span class="filter-label">Afflatus</span>
-                        <div class="filter-buttons">
-                            <button class="filter-btn active" data-filter="afflatus" data-value="all" onclick="setFilter('afflatus', 'all')">ALL</button>
-                            <button class="filter-btn" data-filter="afflatus" data-value="mineral" onclick="setFilter('afflatus', 'mineral')"><img src="image/afflatus/m.webp" alt="">Mineral</button>
-                            <button class="filter-btn" data-filter="afflatus" data-value="star" onclick="setFilter('afflatus', 'star')"><img src="image/afflatus/s.webp" alt="">Star</button>
-                            <button class="filter-btn" data-filter="afflatus" data-value="plant" onclick="setFilter('afflatus', 'plant')"><img src="image/afflatus/p.webp" alt="">Plant</button>
-                            <button class="filter-btn" data-filter="afflatus" data-value="beast" onclick="setFilter('afflatus', 'beast')"><img src="image/afflatus/b.webp" alt="">Beast</button>
-                            <button class="filter-btn" data-filter="afflatus" data-value="spirit" onclick="setFilter('afflatus', 'spirit')"><img src="image/afflatus/sr.webp" alt="">Spirit</button>
-                            <button class="filter-btn" data-filter="afflatus" data-value="intellect" onclick="setFilter('afflatus', 'intellect')"><img src="image/afflatus/i.webp" alt="">Intellect</button>
+                        <div class="filter-buttons" data-filter-type="afflatus">
+                            <button class="filter-btn active" data-value="all">ALL</button>
+                            <button class="filter-btn" data-value="mineral"><img src="image/afflatus/m.webp" alt="">Mineral</button>
+                            <button class="filter-btn" data-value="star"><img src="image/afflatus/s.webp" alt="">Star</button>
+                            <button class="filter-btn" data-value="plant"><img src="image/afflatus/p.webp" alt="">Plant</button>
+                            <button class="filter-btn" data-value="beast"><img src="image/afflatus/b.webp" alt="">Beast</button>
+                            <button class="filter-btn" data-value="spirit"><img src="image/afflatus/sr.webp" alt="">Spirit</button>
+                            <button class="filter-btn" data-value="intellect"><img src="image/afflatus/i.webp" alt="">Intellect</button>
                         </div>
                     </div>
 
                     <div class="filter-row">
                         <span class="filter-label">DMG</span>
-                        <div class="filter-buttons">
-                            <button class="filter-btn active" data-filter="damage-type" data-value="all" onclick="setFilter('damage-type', 'all')">ALL</button>
-                            <button class="filter-btn" data-filter="damage-type" data-value="reality" onclick="setFilter('damage-type', 'reality')"><img src="image/afflatus/reality.webp" alt="">Reality DMG</button>
-                            <button class="filter-btn" data-filter="damage-type" data-value="mental" onclick="setFilter('damage-type', 'mental')"><img src="image/afflatus/mental.webp" alt="">Mental DMG</button>
+                        <div class="filter-buttons" data-filter-type="damage-type">
+                            <button class="filter-btn active" data-value="all">ALL</button>
+                            <button class="filter-btn" data-value="reality"><img src="image/afflatus/reality.webp" alt="">Reality DMG</button>
+                            <button class="filter-btn" data-value="mental"><img src="image/afflatus/mental.webp" alt="">Mental DMG</button>
                         </div>
                     </div>
 
                     <div class="filter-row">
                         <span class="filter-label">Rarity</span>
-                        <div class="filter-buttons">
-                            <button class="filter-btn active" data-filter="rarity" data-value="all" onclick="setFilter('rarity', 'all')">ALL</button>
-                            <button class="filter-btn" data-filter="rarity" data-value="6" onclick="setFilter('rarity', '6')">VI</button>
-                            <button class="filter-btn" data-filter="rarity" data-value="5" onclick="setFilter('rarity', '5')">V</button>
-                            <button class="filter-btn" data-filter="rarity" data-value="4" onclick="setFilter('rarity', '4')">IV</button>
-                            <button class="filter-btn" data-filter="rarity" data-value="3" onclick="setFilter('rarity', '3')">III</button>
-                            <button class="filter-btn" data-filter="rarity" data-value="2" onclick="setFilter('rarity', '2')">II</button>
+                        <div class="filter-buttons" data-filter-type="rarity">
+                            <button class="filter-btn active" data-value="all">ALL</button>
+                            <button class="filter-btn" data-value="6">VI</button>
+                            <button class="filter-btn" data-value="5">V</button>
+                            <button class="filter-btn" data-value="4">IV</button>
+                            <button class="filter-btn" data-value="3">III</button>
+                            <button class="filter-btn" data-value="2">II</button>
                         </div>
                     </div>
                 </div>
@@ -372,7 +398,7 @@
                             <circle cx="11" cy="11" r="8"></circle>
                             <path d="M21 21l-4.35-4.35"></path>
                         </svg>
-                        <input type="text" class="search-input" id="search-input" placeholder="Nhập tên char...">
+                        <input type="text" class="search-input" id="search-input" placeholder="Nhập tên nhân vật, item...">
                     </div>
                     <button class="search-btn" onclick="handleSearch()">Tìm Kiếm</button>
                 </div>

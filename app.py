@@ -21,5 +21,9 @@ def serve_data(filename):
 def serve_image(filename):
     return send_from_directory('image', filename)
 
+@app.route('/static/<path:filename>')
+def serve_static(filename):
+    return send_from_directory('static', filename)
+
 if __name__ == '__main__':
     app.run(debug=True, port=5533)
