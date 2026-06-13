@@ -32,7 +32,10 @@
       "afflatus": "beast",
       "damage_types": "Mental",
       "rarities": "6",
-      "image": "image/char/314601.webp",
+      "image": "image/char/314601.webm",
+      "video_width": "126px",
+      "video_height": "430px",
+      "video_transform": "translate(-15px, -85px)",
       "link": "data/html/Rhiannon.html"
   },
   {
