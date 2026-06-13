@@ -240,10 +240,10 @@
             height: 100%;
         }
 
-        .char-card img:not(.overlay-bg):not(.overlay-afflatus):not(.overlay-rarity) {
-            
-            z-index: 5;
-        }
+        .char-card img:not(.overlay-bg):not(.overlay-afflatus):not(.overlay-rarity):not(.overlay-eu) {
+    position: relative;
+    z-index: 5;
+}
 
         .char-card .overlay-bg {
             position: absolute;
@@ -285,7 +285,7 @@
     font-size: 10px;
     font-weight: 700;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
-    z-index: 8;
+    z-index: 18;
     pointer-events: none;
         }
 
