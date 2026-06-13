@@ -30,7 +30,7 @@ function isSafariPosterOnlyBrowser() {
 
     /*
         Trên iPhone, Chrome/Edge/Firefox cũng dùng WebKit,
-        nên WebM/alpha vẫn dễ lỗi như Safari.
+        nên WebM / WebM alpha vẫn dễ lỗi như Safari.
     */
     return isIOS || isSafari;
 }
@@ -89,6 +89,14 @@ async function loadCharacters() {
 }
 
 /* =========================
+   BUILD NORMAL CHAR IMAGE
+   Ảnh thường và poster Safari dùng chung kiểu này
+========================= */
+function buildNormalCharImage(src, alt) {
+    return `<img class="char-main-img" src="${src}" alt="${alt}">`;
+}
+
+/* =========================
    BUILD MEDIA ELEMENT
 ========================= */
 function buildMediaElement(char) {
@@ -118,22 +126,26 @@ function buildMediaElement(char) {
     const loopEnd = escapeHTML(char.loop_end ?? '');
 
     /*
-        Nếu là Safari / iPhone:
-        - Có poster thì chỉ hiện poster.
-        - Không có poster thì hiện khung báo thiếu poster.
+        Safari / iPhone:
+        Không dùng video-wrapper.
+        Không dùng width/height video.
+        Hiện poster như ảnh char thường.
     */
     if (isVideo && isSafariPosterOnlyBrowser()) {
-    if (poster) {
-        return `<img src="${poster}" alt="${name}">`;
+        if (poster) {
+            return buildNormalCharImage(poster, name);
+        }
+
+        return `
+            <div class="media-missing">
+                <span>Missing poster</span>
+            </div>
+        `;
     }
 
-    return `<img src="${image}" alt="${name}">`;
-}
-
     /*
-        Trình duyệt hỗ trợ video:
-        - Poster nằm dưới.
-        - Video chỉ hiện khi đã loadeddata/canplay/playing.
+        PC / Android / trình duyệt hỗ trợ video:
+        Có poster dưới video để chống trắng lúc video chưa decode.
     */
     if (isVideo) {
         return `
@@ -162,7 +174,10 @@ function buildMediaElement(char) {
         `;
     }
 
-    return `<img src="${image}" alt="${name}">`;
+    /*
+        Ảnh thường.
+    */
+    return buildNormalCharImage(image, name);
 }
 
 /* =========================
@@ -213,7 +228,7 @@ function renderCharacters(characters) {
 }
 
 /* =========================
-   VIDEO CSS AUTO INJECT
+   CSS AUTO INJECT
 ========================= */
 function injectVideoCSS() {
     if (document.getElementById('auto-video-css')) return;
@@ -222,55 +237,73 @@ function injectVideoCSS() {
     style.id = 'auto-video-css';
 
     style.textContent = `
-        .video-wrapper{
+        /*
+            Fix ảnh thường + poster Safari:
+            Ép dùng cùng layout với ảnh char thường.
+            !important để đè .char-card img { width:100%; height:100%; }
+        */
+        .char-card .container > img.char-main-img{
+            position: relative !important;
+            z-index: 2 !important;
+            display: block !important;
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            object-position: center center !important;
+            transform: none !important;
+        }
+
+        /*
+            Video wrapper chỉ dùng cho PC / Android / browser hỗ trợ video.
+            Safari/iPhone không dùng wrapper này nữa.
+        */
+        .char-card .video-wrapper{
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            overflow: hidden !important;
+            display: block !important;
+            z-index: 5 !important;
+            border-radius: 3px !important;
+            pointer-events: none !important;
+        }
+
+        .char-card .video-wrapper .video-poster,
+        .char-card .video-wrapper .char-video{
+            position: absolute !important;
+            inset: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: contain !important;
+            object-position: center center;
+            pointer-events: none !important;
+        }
+
+        .char-card .video-wrapper .video-poster{
+            z-index: 1 !important;
+            opacity: 1;
+            transition: opacity .18s linear;
+        }
+
+        .char-card .video-wrapper .char-video{
+            z-index: 2 !important;
+            opacity: 0;
+            transition: opacity .18s linear;
+        }
+
+        .char-card .video-wrapper .char-video.video-ready{
+            opacity: 1;
+        }
+
+        .char-card .video-wrapper .video-poster.poster-hide{
+            opacity: 0;
+        }
+
+        .char-card .media-missing{
             position: relative;
-            overflow: hidden;
-            display: block;
-        }
-
-        .video-wrapper .video-poster,
-        .video-wrapper .char-video{
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-
-        .video-wrapper .video-poster{
-            z-index: 1;
-            opacity: 1;
-            transition: opacity .18s linear;
-            pointer-events: none;
-        }
-
-        .video-wrapper .char-video{
-            z-index: 2;
-            opacity: 0;
-            transition: opacity .18s linear;
-            pointer-events: none;
-        }
-
-        .video-wrapper .char-video.video-ready{
-            opacity: 1;
-        }
-
-        .video-wrapper .video-poster.poster-hide{
-            opacity: 0;
-        }
-
-        .video-wrapper.safari-poster-only .video-poster{
-            position: absolute;
-            inset: 0;
-            opacity: 1;
             z-index: 2;
             width: 100%;
             height: 100%;
-            object-fit: contain;
-            pointer-events: none;
-        }
-
-        .video-wrapper.media-missing{
             display: flex;
             align-items: center;
             justify-content: center;
@@ -290,8 +323,7 @@ function setupVideos() {
     injectVideoCSS();
 
     /*
-        Safari/iPhone đã render poster-only rồi,
-        nên đoạn này chỉ xử lý các video còn lại.
+        Safari/iPhone không có .char-video vì đã render poster thành ảnh thường.
     */
     document.querySelectorAll('.char-video').forEach(video => {
         if (video.dataset.readySetup === '1') return;
@@ -328,10 +360,6 @@ function setupVideos() {
 
         setupOptionalCustomLoop(video);
 
-        /*
-            Gọi play nhẹ nhàng để mobile/browser không đứng video.
-            Nếu bị chặn thì vẫn còn poster bên dưới.
-        */
         video.play().catch(() => {});
     });
 }
@@ -401,15 +429,24 @@ function setFilter(filterType, value) {
         selectedInput.value = value;
     }
 
-    const buttons = document.querySelectorAll(`[data-filter="${filterType}"]`);
+    /*
+        HTML của bạn dùng:
+        <div class="filter-buttons" data-filter-type="afflatus">
+        nên phải tìm theo data-filter-type, không phải data-filter.
+    */
+    const container = document.querySelector(`.filter-buttons[data-filter-type="${filterType}"]`);
 
-    buttons.forEach(btn => {
-        btn.classList.remove('active');
+    if (container) {
+        const buttons = container.querySelectorAll('.filter-btn');
 
-        if (btn.dataset.value === value) {
-            btn.classList.add('active');
-        }
-    });
+        buttons.forEach(btn => {
+            btn.classList.remove('active');
+
+            if (btn.dataset.value === value) {
+                btn.classList.add('active');
+            }
+        });
+    }
 
     filterCharacters();
 }
@@ -503,7 +540,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 /* =========================
    EXPOSE GLOBAL FUNCTIONS
-   Phòng trường hợp HTML còn dùng onclick="setFilter(...)"
+   Cho onclick="handleSearch()" trong HTML
 ========================= */
 window.setFilter = setFilter;
 window.filterCharacters = filterCharacters;
