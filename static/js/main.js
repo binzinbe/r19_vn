@@ -1,4 +1,8 @@
 /* JavaScript */
+
+/* =========================
+   GLOBAL STATE
+========================= */
 let allCharacters = [];
 
 /* =========================
@@ -10,40 +14,25 @@ const VIDEO_CONFIG = {
 };
 
 /* =========================
-   LOAD CHARACTERS
+   BROWSER CHECK
+   iPhone / iPad / Safari sẽ hiện poster thay vì WebM
 ========================= */
-async function loadCharacters() {
-    try {
-        const response = await fetch('data/characters.json');
+function isSafariPosterOnlyBrowser() {
+    const ua = navigator.userAgent || '';
 
-        if (!response.ok) {
-            throw new Error(`Không tải được characters.json: ${response.status}`);
-        }
+    const isIOS =
+        /iPad|iPhone|iPod/.test(ua) ||
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
-        allCharacters = await response.json();
-        renderCharacters(allCharacters);
-    } catch (error) {
-        console.error('Error loading characters:', error);
+    const isSafari =
+        /Safari/.test(ua) &&
+        !/Chrome|Chromium|CriOS|FxiOS|EdgiOS|OPR|Opera|Android/.test(ua);
 
-        const grid = document.querySelector('.characters-grid');
-        if (grid) {
-            grid.innerHTML = '<p class="no-results">Không tải được danh sách nhân vật.</p>';
-        }
-    }
-}
-
-/* =========================
-   CHECK VIDEO
-========================= */
-function isVideoFile(src) {
-    if (!src) return false;
-
-    const cleanSrc = src.toLowerCase().split('?')[0].split('#')[0];
-
-    return (
-        cleanSrc.endsWith('.webm') ||
-        cleanSrc.endsWith('.mp4')
-    );
+    /*
+        Trên iPhone, Chrome/Edge/Firefox cũng dùng WebKit,
+        nên WebM/alpha vẫn dễ lỗi như Safari.
+    */
+    return isIOS || isSafari;
 }
 
 /* =========================
@@ -56,6 +45,132 @@ function escapeHTML(value) {
         .replaceAll('>', '&gt;')
         .replaceAll('"', '&quot;')
         .replaceAll("'", '&#039;');
+}
+
+/* =========================
+   CHECK VIDEO FILE
+========================= */
+function isVideoFile(src) {
+    if (!src) return false;
+
+    const cleanSrc = String(src).toLowerCase().split('?')[0].split('#')[0];
+
+    return (
+        cleanSrc.endsWith('.webm') ||
+        cleanSrc.endsWith('.mp4') ||
+        cleanSrc.endsWith('.mov')
+    );
+}
+
+/* =========================
+   LOAD CHARACTERS
+========================= */
+async function loadCharacters() {
+    const grid = document.querySelector('.characters-grid');
+
+    try {
+        const response = await fetch('data/characters.json', {
+            cache: 'no-cache'
+        });
+
+        if (!response.ok) {
+            throw new Error(`Không tải được characters.json: ${response.status}`);
+        }
+
+        allCharacters = await response.json();
+        renderCharacters(allCharacters);
+    } catch (error) {
+        console.error('Error loading characters:', error);
+
+        if (grid) {
+            grid.innerHTML = '<p class="no-results">Không tải được danh sách nhân vật.</p>';
+        }
+    }
+}
+
+/* =========================
+   BUILD MEDIA ELEMENT
+========================= */
+function buildMediaElement(char) {
+    const name = escapeHTML(char.name);
+    const image = escapeHTML(char.image || '');
+    const poster = escapeHTML(char.poster || '');
+
+    const isVideo = isVideoFile(char.image);
+
+    const videoStyle = isVideo
+        ? `
+            style="
+                width: ${escapeHTML(char.video_width || '112px')};
+                height: ${escapeHTML(char.video_height || '200px')};
+                left: ${escapeHTML(char.video_left || '0px')};
+                top: ${escapeHTML(char.video_top || '0px')};
+                transform: ${escapeHTML(char.video_transform || 'none')};
+            "
+          `
+        : '';
+
+    const videoInnerStyle = char.video_position
+        ? `object-position: ${escapeHTML(char.video_position)};`
+        : '';
+
+    const loopStart = escapeHTML(char.loop_start ?? VIDEO_CONFIG.loopStart);
+    const loopEnd = escapeHTML(char.loop_end ?? '');
+
+    /*
+        Nếu là Safari / iPhone:
+        - Có poster thì chỉ hiện poster.
+        - Không có poster thì hiện khung báo thiếu poster.
+    */
+    if (isVideo && isSafariPosterOnlyBrowser()) {
+        if (poster) {
+            return `
+                <div class="video-wrapper safari-poster-only" ${videoStyle}>
+                    <img class="video-poster safari-poster" src="${poster}" alt="${name}">
+                </div>
+            `;
+        }
+
+        return `
+            <div class="video-wrapper safari-poster-only media-missing" ${videoStyle}>
+                <span>Missing poster</span>
+            </div>
+        `;
+    }
+
+    /*
+        Trình duyệt hỗ trợ video:
+        - Poster nằm dưới.
+        - Video chỉ hiện khi đã loadeddata/canplay/playing.
+    */
+    if (isVideo) {
+        return `
+            <div class="video-wrapper" ${videoStyle}>
+                ${
+                    poster
+                        ? `<img class="video-poster" src="${poster}" alt="${name}">`
+                        : ''
+                }
+
+                <video
+                    class="char-video"
+                    src="${image}"
+                    muted
+                    loop
+                    autoplay
+                    playsinline
+                    webkit-playsinline
+                    preload="auto"
+                    ${poster ? `poster="${poster}"` : ''}
+                    data-loop-start="${loopStart}"
+                    data-loop-end="${loopEnd}"
+                    style="${videoInnerStyle}">
+                </video>
+            </div>
+        `;
+    }
+
+    return `<img src="${image}" alt="${name}">`;
 }
 
 /* =========================
@@ -73,71 +188,18 @@ function renderCharacters(characters) {
     grid.innerHTML = characters.map(char => {
         const name = escapeHTML(char.name);
         const nameEU = escapeHTML(char.name_eu);
-        const image = escapeHTML(char.image);
         const link = escapeHTML(char.link || '#');
         const afflatus = escapeHTML(char.afflatus);
         const rarity = escapeHTML(char.rarities);
 
-        const euImage = char.eu === "1"
+        const euImage = char.eu === '1'
             ? `
                 <img class="overlay-eu" src="image/rarities/eu.webp" alt="EU">
                 <span class="char-eu-name">EU ${nameEU}</span>
               `
             : '';
 
-        const isVideo = isVideoFile(char.image);
-
-        const videoStyle = isVideo
-            ? `
-                style="
-                    width: ${escapeHTML(char.video_width || '112px')};
-                    height: ${escapeHTML(char.video_height || '200px')};
-                    left: ${escapeHTML(char.video_left || '0px')};
-                    top: ${escapeHTML(char.video_top || '0px')};
-                    transform: ${escapeHTML(char.video_transform || 'none')};
-                "
-              `
-            : '';
-
-        const videoInnerStyle = char.video_position
-            ? `object-position: ${escapeHTML(char.video_position)};`
-            : '';
-
-        /*
-            Poster dùng để chống mất hình 0.5s - 1s khi WebM chưa decode xong.
-            Trong characters.json nên thêm:
-            "poster": "image/char/ten_nhan_vat.webp"
-        */
-        const poster = escapeHTML(char.poster || '');
-
-        const loopStart = escapeHTML(char.loop_start ?? VIDEO_CONFIG.loopStart);
-        const loopEnd = escapeHTML(char.loop_end ?? '');
-
-        const mediaElement = isVideo
-            ? `
-                <div class="video-wrapper" ${videoStyle}>
-                    ${
-                        poster
-                            ? `<img class="video-poster" src="${poster}" alt="${name}">`
-                            : ''
-                    }
-
-                    <video
-                        class="char-video"
-                        src="${image}"
-                        muted
-                        loop
-                        autoplay
-                        playsinline
-                        preload="auto"
-                        ${poster ? `poster="${poster}"` : ''}
-                        data-loop-start="${loopStart}"
-                        data-loop-end="${loopEnd}"
-                        style="${videoInnerStyle}">
-                    </video>
-                </div>
-              `
-            : `<img src="${image}" alt="${name}">`;
+        const mediaElement = buildMediaElement(char);
 
         return `
             <a href="${link}" class="char-card">
@@ -160,7 +222,6 @@ function renderCharacters(characters) {
 
 /* =========================
    VIDEO CSS AUTO INJECT
-   Không cần sửa CSS riêng
 ========================= */
 function injectVideoCSS() {
     if (document.getElementById('auto-video-css')) return;
@@ -172,6 +233,7 @@ function injectVideoCSS() {
         .video-wrapper{
             position: relative;
             overflow: hidden;
+            display: block;
         }
 
         .video-wrapper .video-poster,
@@ -204,6 +266,26 @@ function injectVideoCSS() {
         .video-wrapper .video-poster.poster-hide{
             opacity: 0;
         }
+
+        .video-wrapper.safari-poster-only .video-poster{
+            position: absolute;
+            inset: 0;
+            opacity: 1;
+            z-index: 2;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            pointer-events: none;
+        }
+
+        .video-wrapper.media-missing{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: rgba(255,255,255,.55);
+            background: rgba(255,255,255,.04);
+        }
     `;
 
     document.head.appendChild(style);
@@ -215,6 +297,10 @@ function injectVideoCSS() {
 function setupVideos() {
     injectVideoCSS();
 
+    /*
+        Safari/iPhone đã render poster-only rồi,
+        nên đoạn này chỉ xử lý các video còn lại.
+    */
     document.querySelectorAll('.char-video').forEach(video => {
         if (video.dataset.readySetup === '1') return;
         video.dataset.readySetup = '1';
@@ -223,7 +309,10 @@ function setupVideos() {
         const poster = wrapper ? wrapper.querySelector('.video-poster') : null;
 
         video.muted = true;
+        video.defaultMuted = true;
         video.playsInline = true;
+        video.setAttribute('playsinline', '');
+        video.setAttribute('webkit-playsinline', '');
         video.preload = 'auto';
 
         const showVideo = () => {
@@ -237,21 +326,19 @@ function setupVideos() {
         };
 
         /*
-            loadeddata: frame đầu đã decode xong
-            canplay / playing: video đã đủ điều kiện hiển thị
+            loadeddata: frame đầu đã decode.
+            canplay: video đủ điều kiện chạy.
+            playing: video thật sự đang chạy.
         */
         video.addEventListener('loadeddata', showVideo, { once: true });
         video.addEventListener('canplay', showVideo, { once: true });
         video.addEventListener('playing', showVideo, { once: true });
 
-        /*
-            Nếu có loop_end riêng thì dùng loop thủ công.
-            Nếu không có loop_end thì để browser tự loop.
-        */
         setupOptionalCustomLoop(video);
 
         /*
-            Gọi play nhiều lần nhẹ nhàng để mobile/browser không đứng video.
+            Gọi play nhẹ nhàng để mobile/browser không đứng video.
+            Nếu bị chặn thì vẫn còn poster bên dưới.
         */
         video.play().catch(() => {});
     });
@@ -259,7 +346,7 @@ function setupVideos() {
 
 /* =========================
    OPTIONAL CUSTOM LOOP
-   Chỉ hoạt động nếu char có "loop_end"
+   Chỉ dùng nếu character có loop_end
 ========================= */
 function setupOptionalCustomLoop(video) {
     const loopEndRaw = video.dataset.loopEnd;
@@ -281,13 +368,12 @@ function setupOptionalCustomLoop(video) {
 
     function restart() {
         try {
-            // Chỉ gán currentTime, KHÔNG gọi lại video.play() ở đây
-            // vì gọi play() liên tục có thể làm khựng frame tiếp theo
-            video.currentTime = isNaN(loopStart) ? VIDEO_CONFIG.loopStart : loopStart;
+            video.currentTime = isNaN(loopStart)
+                ? VIDEO_CONFIG.loopStart
+                : loopStart;
         } catch (err) {}
     }
 
-    // Sử dụng requestAnimationFrame để check mượt hơn thay vì timeupdate
     function checkLoop() {
         if (video.seeking) {
             requestAnimationFrame(checkLoop);
@@ -298,18 +384,15 @@ function setupOptionalCustomLoop(video) {
             restart();
         }
 
-        // Tiếp tục theo dõi nếu video chưa kết thúc và đang không bị pause
         if (!video.paused && !video.ended) {
             requestAnimationFrame(checkLoop);
         }
     }
 
-    // Bắt đầu vòng lặp theo dõi khi video chạy
     video.addEventListener('play', () => {
         requestAnimationFrame(checkLoop);
     });
 
-    // Phòng hờ nếu video chạy tuột qua checkLoop do lag trình duyệt
     video.addEventListener('ended', () => {
         restart();
         video.play().catch(() => {});
@@ -355,14 +438,15 @@ function filterCharacters() {
         const charDamageType = String(char.damage_types || '').toLowerCase();
         const charRarity = String(char.rarities || '');
         const charName = String(char.name || '').toLowerCase();
+        const charNameEU = String(char.name_eu || '').toLowerCase();
 
         const matchAfflatus =
             afflatus === 'all' ||
-            charAfflatus === afflatus;
+            charAfflatus === String(afflatus).toLowerCase();
 
         const matchDamageType =
             damageType === 'all' ||
-            charDamageType === damageType;
+            charDamageType === String(damageType).toLowerCase();
 
         const matchRarity =
             rarity === 'all' ||
@@ -370,7 +454,8 @@ function filterCharacters() {
 
         const matchQuery =
             query === '' ||
-            charName.includes(query);
+            charName.includes(query) ||
+            charNameEU.includes(query);
 
         return (
             matchAfflatus &&
@@ -391,6 +476,8 @@ function handleSearch() {
    DOM READY
 ========================= */
 document.addEventListener('DOMContentLoaded', () => {
+    injectVideoCSS();
+
     const searchInput = document.getElementById('search-input');
 
     if (searchInput) {
@@ -412,7 +499,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.addEventListener('visibilitychange', () => {
-        if (!document.hidden) {
+        if (!document.hidden && !isSafariPosterOnlyBrowser()) {
             document.querySelectorAll('.char-video').forEach(video => {
                 video.play().catch(() => {});
             });
@@ -421,3 +508,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     loadCharacters();
 });
+
+/* =========================
+   EXPOSE GLOBAL FUNCTIONS
+   Phòng trường hợp HTML còn dùng onclick="setFilter(...)"
+========================= */
+window.setFilter = setFilter;
+window.filterCharacters = filterCharacters;
+window.handleSearch = handleSearch;
+window.loadCharacters = loadCharacters;
