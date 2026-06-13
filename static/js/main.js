@@ -14,8 +14,7 @@ const VIDEO_CONFIG = {
 };
 
 /* =========================
-   BROWSER CHECK
-   iPhone / iPad / Safari sẽ hiện poster thay vì WebM
+
 ========================= */
 function isSafariPosterOnlyBrowser() {
     const ua = navigator.userAgent || '';
