@@ -123,20 +123,12 @@ function buildMediaElement(char) {
         - Không có poster thì hiện khung báo thiếu poster.
     */
     if (isVideo && isSafariPosterOnlyBrowser()) {
-        if (poster) {
-            return `
-                <div class="video-wrapper safari-poster-only" ${videoStyle}>
-                    <img class="video-poster safari-poster" src="${poster}" alt="${name}">
-                </div>
-            `;
-        }
-
-        return `
-            <div class="video-wrapper safari-poster-only media-missing" ${videoStyle}>
-                <span>Missing poster</span>
-            </div>
-        `;
+    if (poster) {
+        return `<img src="${poster}" alt="${name}">`;
     }
+
+    return `<img src="${image}" alt="${name}">`;
+}
 
     /*
         Trình duyệt hỗ trợ video:
